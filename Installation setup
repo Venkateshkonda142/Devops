@@ -212,6 +212,43 @@ tail -f /var/log/apache2/access.log
 ============================
 
 
+#!/bin/bash
+set -e
+
+echo "=== Installing Apache and Git ==="
+yum install -y httpd git
+
+echo "=== Enabling and Starting Apache ==="
+systemctl enable httpd
+systemctl start httpd
+
+echo "=== Moving to Apache Web Root ==="
+cd /var/www/html || exit 1
+
+echo "=== Cleaning Existing Web Files ==="
+rm -rf /var/www/html/*
+
+echo "=== Removing Old Git Directory If Exists ==="
+if [ -d "online-clone-amazon" ]; then
+    rm -rf online-clone-amazon
+fi
+
+echo "=== Cloning Amazon Clone Repository ==="
+git clone https://github.com/Ironhack-Archive/online-clone-amazon.git
+
+echo "=== Deploying Website Files ==="
+mv online-clone-amazon/* /var/www/html/
+
+echo "=== Cleaning Up ==="
+rm -rf online-clone-amazon
+
+echo "=== Restarting Apache ==="
+systemctl restart httpd
+
+echo "=== Apache Status ==="
+systemctl status httpd --no-pager
+
+echo "=== Deployment Completed Successfully ==="
 
 
 
